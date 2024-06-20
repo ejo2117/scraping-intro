@@ -7,5 +7,5 @@ browser.open("https://en.wikipedia.org/wiki/Comparison_of_Linux_distributions")
 
 # extract table headers
 th = browser.page.find_all("th", attrs={"class": "table-rh"})
-distribution = [value.text for value in th]
+distribution = [value.text.replace("\n", "") for value in th]
 print(distribution)
