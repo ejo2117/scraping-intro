@@ -1,0 +1,1 @@
+sqlite3 -header -csv spotify_weekly.db "select * from spotify;" > data.csv

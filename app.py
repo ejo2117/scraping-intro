@@ -3,45 +3,56 @@ import pandas as pd
 import sqlite3
 
 browser = mechanicalsoup.StatefulBrowser()
-browser.open("https://en.wikipedia.org/wiki/Comparison_of_Linux_distributions")
+browser.open("https://kworb.net/spotify/country/global_weekly_totals.html")
+
+
+# thing = "Artist name - song name - remix"
+# nospace = [x.strip() for x in thing.split("-", 1)]
+# print(nospace)
 
 # extract table headers
-th = browser.page.find_all("th", attrs={"class": "table-rh"})
-distribution = [value.text.replace("\n", "") for value in th]
-distribution = distribution[:98]
+# th = browser.page.find_all("td", attrs={"class": "text mp"})
+# artistAndTitle = [value.text for value in th]
+# artistAndTitle = artistAndTitle[:98]
+# print(artistAndTitle)
 
-# extract table data
+# # extract table data
 td = browser.page.find_all("td")
-columns = [value.text.replace("\n", "") for value in td]
-columns = columns[6:1084]
+columns = [value.text for value in td]
+# columns = columns[6:1084]
 
-column_names = ["Founder", 
-                "Maintainer", 
-                "Initial_Release_Year", 
-                "Current_Stable_Version", 
-                "Security_Updates", 
-                "Release_Date", 
-                "System_Distribution_Commitment", 
-                "Forked_From", 
-                "Target_Audience", 
-                "Cost", 
-                "Status"]
+# f = open("test.txt", "a")
+# f.write(str(columns))
+# f.close()
 
-dictionary = {"Distribution": distribution} 
 
-# select every 11th item
+column_names = ["Artist_And_Title", 
+                "Weeks", 
+                "Weeks_In_T10",
+                "Peak_Position",
+                "Weeks_At_Peak", 
+                "Peak_Streams", 
+                "Total_Streams"]
+
+# dictionary = {"Distribution": distribution} 
+dictionary = {}
+
+# # select every 11th item
 for idx, key in enumerate(column_names):
     dictionary[key] = columns[idx:][::len(column_names)]
+    # dictionary["Position"] = idx
 
 df = pd.DataFrame(data = dictionary)
 
-# insert data into a database
-connection = sqlite3.connect("linux_distro.db")
+# print(df.head())
+
+# # insert data into a database
+connection = sqlite3.connect("spotify_weekly.db")
 cursor = connection.cursor()
 
-cursor.execute("create table linux (Distribution, " + ",".join(column_names) + ")")
+cursor.execute("create table spotify ( " + ",".join(column_names) + ")")
 for i in range(len(df)):
-    cursor.execute("insert into linux values (?,?,?,?,?,?,?,?,?,?,?,?)", df.iloc[i])
+    cursor.execute("insert into spotify values (?,?,?,?,?,?,?)", df.iloc[i])
 
 connection.commit()
 
