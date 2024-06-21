@@ -27,11 +27,22 @@ column_names = ["Founder",
                 "Cost", 
                 "Status"]
 
-dictionary = {"Distribution": distribution}
+dictionary = {"Distribution": distribution} 
 
-#select every 11th item
+# select every 11th item
 for idx, key in enumerate(column_names):
     dictionary[key] = columns[idx:][::len(column_names)]
 
 df = pd.DataFrame(data = dictionary)
-print(df.tail())
+
+# insert data into a database
+connection = sqlite3.connect("linux_distro.db")
+cursor = connection.cursor()
+
+cursor.execute("create table linux (Distribution, " + ",".join(column_names) + ")")
+for i in range(len(df)):
+    cursor.execute("insert into linux values (?,?,?,?,?,?,?,?,?,?,?,?)", df.iloc[i])
+
+connection.commit()
+
+connection.close()
